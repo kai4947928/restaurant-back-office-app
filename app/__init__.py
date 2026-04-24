@@ -1,4 +1,5 @@
 from flask import Flask
+from .db import seed_user
 import os
 
 from .db import close_db, init_db
@@ -15,6 +16,7 @@ def create_app():
 
     with app.app_context():
         init_db()
+        seed_user()
 
     app.teardown_appcontext(close_db)
 
