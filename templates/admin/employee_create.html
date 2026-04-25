@@ -29,6 +29,7 @@
             <div>
                 <label>性別</label>
                 <select name="gender">
+                    <option value="">選択してください</option>
                     <option value="man">男性</option>
                     <option value="woman">女性</option>
                     <option value="other">その他</option>
@@ -45,6 +46,7 @@
             <div>
                 <label>雇用区分</label>
                 <select name="employment_type">
+                    <option value="">選択してください</option>
                     <option value="full_time">正社員</option>
                     <option value="contract">契約社員</option>
                     <option value="part_time">アルバイト・パート</option>
@@ -56,12 +58,32 @@
                 <input type="date" name="hire_date">
             </div>
             <div>
-                <label>権限</label>
-                <select name="role">
-                    <option value="staff">一般スタッフ</option>
-                    <option value="manager">店長</option>
-                    <option value="admin">管理者</option>
+                <label>店番号</label>
+                <input type="text" name="store_code">
+            </div>
+            <div>
+                <label>担当領域</label>
+                <select name="department">
+                    <option value="">選択してください</option>
+                    <option value="kitchen">キッチン</option>
+                    <option value="hall">ホール</option>
+                    <option value="all">全体</option>
                 </select>
+            </div>
+            <div>
+                <label>役職</label>
+                <select name="position">
+                    <option value="">選択してください</option>
+                    <option value="staff">一般スタッフ</option>
+                    <option value="store_manager">店長</option>
+                    <option value="assistant_manager">副店長</option>
+                    <option value="head_chef">料理長</option>
+                    <option value="sous_chef">副料理長</option>
+                </select>
+            </div>
+            <div>
+                <label>電話番号</label>
+                <input type="text" name="phone_number">
             </div>
 
             <button type="submit">登録</button>
