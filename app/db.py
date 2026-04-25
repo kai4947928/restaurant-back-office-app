@@ -40,19 +40,21 @@ def seed_user():
             """
             INSERT INTO users (
                 employee_id,
+                email,
                 password_hash,
                 role,
                 created_at,
                 updated_at
             )
-            VALUES (?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?)
             """,
             (
                 "admin",
+                "admin@example.com",
                 generate_password_hash("password"),
                 "admin",
-                datetime.now().isoformat(),
-                datetime.now().isoformat()
+                now,
+                now
             )
         )
 
