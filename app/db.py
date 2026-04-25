@@ -43,16 +43,20 @@ def seed_user():
                 email,
                 password_hash,
                 role,
+                is_active,
+                must_change_password,
                 created_at,
                 updated_at
             )
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 "admin",
                 "admin@example.com",
                 generate_password_hash("password"),
                 "admin",
+                1,
+                0,
                 now,
                 now
             )
