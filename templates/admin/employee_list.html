@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <title>従業員一覧</title>
+    </head>
+    <body>
+        <h1>従業員一覧</h1>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <table border="1">
+            <tr>
+                <th>社員番号</th>
+                <th>氏名</th>
+                <th>メール</th>
+                <th>操作</th>
+            </tr>
+
+            {% for emp in employees %}
+            <tr>
+                <td>{{ emp.employee_id}}</td>
+                <td>{{ emp.full_name }}</td>
+                <td>{{ emp.email }}</td>
+                <td>
+                    <form method="post" action="{{ url_for('admin.reset_password', user_id=emp.id) }}">
+                        <button type="submit" onclick="return confirm('仮パスワードを再発行しますか?')">
+                            仮パスワード再発行
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        <p>
+            <a href="{{ url_for('admin.employee_create') }}">従業員を登録する</a>
+        </p>
+    </body>
+</html>

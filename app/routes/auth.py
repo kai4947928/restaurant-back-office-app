@@ -15,15 +15,19 @@ def login():
 
         user = db.execute(
             """
-            SELECT id, employee_id, password_hash, role
+            SELECT id, employee_id, password_hash, role, is_active, must_change_password
             FROM users
             WHERE employee_id = ?
             """,
             (employee_id,)
         ).fetchone()
 
-        if user is None:
+        if user is None or user["is_active"] == 0:
             flash("社員番号またはパスワードが違います。")
+            return redirect(url_for("auth.login"))
+
+        if user["password_hash"] is None:
+            flash("パスワードが未設定です。")
             return redirect(url_for("auth.login"))
 
         if not check_password_hash(user["password_hash"], password):

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <title>従業員登録</title>
+    </head>
+    <body>
+        <h1>従業員登録</h1>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <form method="post">
+            <div>
+                <label>氏名</label>
+                <input type="text" name="full_name" required>
+            </div>
+            <div>
+                <label>メールアドレス</label>
+                <input type="email" name="email" required>
+            </div>
+            <div>
+                <label>性別</label>
+                <select name="gender">
+                    <option value="man">男性</option>
+                    <option value="woman">女性</option>
+                    <option value="other">その他</option>
+                </select>
+            </div>
+            <div>
+                <label>生年月日</label>
+                <input type="date" name="birth_date" required>
+            </div>
+            <div>
+                <label>住所</label>
+                <input type="text" name="home_address">
+            </div>
+            <div>
+                <label>雇用区分</label>
+                <select name="employment_type">
+                    <option value="full_time">正社員</option>
+                    <option value="contract">契約社員</option>
+                    <option value="part_time">アルバイト・パート</option>
+                    <option value="temporary">派遣</option>
+                </select>
+            </div>
+            <div>
+                <label>入社日</label>
+                <input type="date" name="hire_date">
+            </div>
+            <div>
+                <label>権限</label>
+                <select name="role">
+                    <option value="staff">一般スタッフ</option>
+                    <option value="manager">店長</option>
+                    <option value="admin">管理者</option>
+                </select>
+            </div>
+
+            <button type="submit">登録</button>
+        </form>
+        <p>
+            <a href="{{ url_for('admin.employee_list') }}">従業員一覧へ戻る</a>
+        </p>
+    </body>
+</html>
