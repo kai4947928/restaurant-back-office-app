@@ -10,7 +10,18 @@ from app.db import get_db
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
 def generate_employee_id():
-    return "".join(random.choices(string.digits, k=6))
+    db = get_db()
+
+    while True:
+        employee_id = "".join(random.choices(string.digits, k=6))
+
+        exists = db.execute(
+            "SELECT 1 FROM users WHERE employee_id = ?",
+            (employee_id,)
+        ).fetchone()
+
+        if not exists:
+            return employee_id
 
 def generate_temp_password():
     return "".join(random.choices(string.ascii_letters + string.digits, k=10))
@@ -32,6 +43,10 @@ def employee_create():
         home_address = request.form.get("home_address", "")
         employment_type = request.form.get("employment_type", "")
         hire_date = request.form.get("hire_date", "")
+        store_code = request.form.get("store_code", "")
+        department = request.form.get("department", "")
+        position = request.form.get("position", "")
+        phone_number = request.form.get("phone_number", "")
         role = request.form.get("role", "staff")
 
         employee_id = generate_employee_id()
@@ -76,12 +91,16 @@ def employee_create():
                 gender,
                 birth_date,
                 home_address,
+                store_code,
+                department,
+                position,
+                phone_number,
                 employment_type,
                 hire_date,
                 created_at,
                 updated_at
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 user_id,
@@ -89,6 +108,10 @@ def employee_create():
                 gender,
                 birth_date,
                 home_address,
+                store_code,
+                department,
+                position,
+                phone_number,
                 employment_type,
                 hire_date,
                 now,
@@ -103,6 +126,87 @@ def employee_create():
 
     return render_template("admin/employee_create.html")
 
+@admin_bp.route("/employees/<int:user_id>/edit", methods=["GET", "POST"])
+def employee_edit(user_id):
+    if "user_id" not in session:
+        return redirect(url_for("auth.login"))
+
+    if session.get("role") != "admin":
+        flash("権限がありません")
+        return redirect(url_for("home"))
+
+    db = get_db()
+
+    if request.method == "POST":
+        full_name = request.form.get("full_name", "")
+        email = request.form.get("email", "")
+        home_address = request.form.get("home_address", "")
+        employment_type = request.form.get("employment_type", "")
+        store_code = request.form.get("store_code", "")
+        department = request.form.get("department", "")
+        position = request.form.get("position", "")
+        phone_number = request.form.get("phone_number", "")
+        role = request.form.get("role", "staff")
+
+        now = datetime.now().isoformat()
+
+        db.execute(
+            """
+            UPDATE users
+            SET email = ?, role = ?, updated_at = ?
+            WHERE id = ?
+            """,
+            (email, role, now, user_id)
+        )
+
+        db.execute(
+            """
+            UPDATE employees
+            SET
+                full_name = ?,
+                home_address = ?
+                employment_type = ?,
+                store_code,
+                department = ?,
+                position = ?,
+                phone_number = ?,
+                updated_at = ?
+            WHERE user_id = ?
+            """,
+            (
+                full_name,
+                home_address,
+                employment_type,
+                store_code,
+                department,
+                position,
+                phone_number,
+                now,
+                user_id
+            )
+        )
+
+        db.commit()
+
+        flash("従業員情報を更新しました。")
+        return redirect(url_for("admin.employee_list"))
+
+    employee = db.execute(
+        """
+        SELECT
+            users.id,
+            users.email,
+            users.role,
+            employees.*
+        FROM users
+        JOIN employees ON users.id = employees.user_id
+        WHERE users.id = ?
+        """,
+        (user_id,)
+    ).fetchone()
+
+    return render_template("admin/employee_edit.html", emp=employee)
+
 @admin_bp.route("/employees")
 def employee_list():
     if "user_id" not in session:
@@ -116,13 +220,46 @@ def employee_list():
 
     employees = db.execute(
         """
-        SELECT users.id, users.employee_id, users.email, employees.full_name
+        SELECT
+            users.id,
+            users.employee_id,
+            users.email,
+            users.role,
+            employees.full_name,
+            employees.store_code,
+            employees.department,
+            employees.position
         FROM users
         JOIN employees ON users.id = employees.user_id
         """
     ).fetchall()
 
     return render_template("admin/employee_list.html", employees=employees)
+
+@admin_bp.route("/employees/<int:user_id>/disable", methods=["POST"])
+def employee_disable(user_id):
+    if "user_id" not in session:
+        return redirect(url_for("auth/login"))
+
+    if session.get("role") != "admin":
+        flash("権限がありません")
+        return redirect(url_for("home"))
+
+    db = get_db()
+
+    db.execute(
+        """
+        UPDATE users
+        SET is_active = 0
+        WHERE id = ?
+        """,
+        (user_id,)
+    )
+
+    db.commit()
+
+    flash("従業員を無効化しました。")
+    return redirect(url_for("admin.employee_list"))
 
 @admin_bp.route("/employees/<int:user_id>/reset-password", methods=["POST"])
 def reset_password(user_id):

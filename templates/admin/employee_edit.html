@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <title>従業員情報編集</title>
+    </head>
+    <body>
+        <h1>従業員情報編集</h1>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <form method="post">
+            <div>
+                <label>氏名</label><br>
+                <input type="text" name="full_name" value="{{ emp.full_name }}">
+            </div>
+            <div>
+                <label>メールアドレス</label><br>
+                <input type="email" name="email" value="{{ emp.email }}">
+            </div>
+            <div>
+                <label>店番号</label><br>
+                <input type="text" name="store_code" value="{{ emp.store_code }}">
+            </div>
+            <div>
+                <label>担当領域</label><br>
+                <select name="department">
+                    <option value="kitchen" {% if emp.department == "kitchen" %}selected{% endif %}>キッチン</option>
+                    <option value="hall" {% if emp.department == "hall" %}selected{% endif %}>ホール</option>
+                    <option value="all" {% if emp.department == "all" %}selected{% endif %}>全体</option>
+                </select>
+            </div>
+            <div>
+                <label>役割</label><br>
+                <select name="position">
+                    <option value="staff" {% if emp.position == "staff" %}selected{% endif %}>一般スタッフ</option>
+                    <option value="store_manager" {% if emp.position == "store_manager" %}selected{% endif %}>店長</option>
+                    <option value="assistant_manager" {% if emp.position == "assistant_manager" %}selected{% endif %}>副店長</option>
+                    <option value="head_chef" {% if emp.position == "head_chef" %}selected{% endif %}>料理長</option>
+                    <option value="sous_chef" {% if emp.position == "sous_chef" %}selected{% endif %}>副料理長</option>
+                </select>
+            </div>
+            <button type="submit">更新</button>
+        </form>
+        <p>
+            <a href="{{ url_for('admin.employee_list') }}">従業員一覧へ戻る</a>
+        </p>
+    </body>
+</html>
