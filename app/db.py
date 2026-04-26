@@ -45,10 +45,11 @@ def seed_user():
                 role,
                 is_active,
                 must_change_password,
+                can_view_audit_logs,
                 created_at,
                 updated_at
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 "admin",
@@ -57,6 +58,7 @@ def seed_user():
                 "admin",
                 1,
                 0,
+                1,
                 now,
                 now
             )

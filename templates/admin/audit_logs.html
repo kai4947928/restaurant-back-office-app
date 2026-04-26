@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <title>監査ログ</title>
+    </head>
+    <body>
+        <h1>監査ログ</h1>
+
+        <table border="1">
+            <tr>
+                <th>日時</th>
+                <th>操作ユーザー</th>
+                <th>アクション</th>
+                <th>対象ユーザー</th>
+                <th>内容</th>
+            </tr>
+
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.created_at }}</td>
+                <td>{{ log.actor_employee_id }}</td>
+                <td>{{ log.action }}</td>
+                <td>{{ log.target_user_id }}</td>
+                <td>{{ log.description }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <p>
+            <a href="{{ url_for('home') }}">ホームへ戻る</a>
+            <a href="{{ url_for('admin.employee_list') }}">従業員一覧へ戻る</a>
+        </p>
+    </body>
+</html>
