@@ -27,3 +27,15 @@ CREATE TABLE IF NOT EXISTS employees (
     updated_at TEXT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (id)
 );
+
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    actor_user_id INTEGER,
+    action TEXT NOT NULL,
+    target_type TEXT NOT NULL,
+    target_user_id INTEGER,
+    description TEXT,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (actor_user_id) REFERENCES users (id),
+    FOREIGN KEY (target_user_id) REFERENCES users (id)
+);
