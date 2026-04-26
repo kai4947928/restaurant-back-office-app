@@ -30,5 +30,3 @@ def log_action(action, target_type, target_user_id=None, description=""):
             now
         )
     )
-
-    db.commit()

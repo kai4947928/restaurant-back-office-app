@@ -198,7 +198,7 @@ def employee_edit(user_id):
             action="edit_employee",
             target_type="employee",
             target_user_id=user_id,
-            description=f"{full_name}を更新"
+            description=f"{full_name}へ更新"
         )
 
         db.commit()
@@ -329,3 +329,36 @@ def reset_password(user_id):
 
     flash(f"仮パスワードを再発行しました: {temp_password}")
     return redirect(url_for("admin.employee_list"))
+
+@admin_bp.route("/audit-logs")
+def audit_logs():
+    if "user_id" not in session:
+        return redirect(url_for("auth.login"))
+
+    if session.get("role") != "admin":
+        flash("権限がありません")
+        return redirect(url_for("home"))
+
+    db = get_db()
+
+    user = db.execute(
+        "SELECT can_view_audit_logs FROM users WHERE id = ?",
+        (session["user_id"],)
+    ).fetchone()
+
+    if user["can_view_audit_logs"] != 1:
+        flash("監査ログを閲覧する権限がありません")
+        return redirect(url_for("home"))
+
+    logs = db.execute(
+        """
+        SELECT
+            audit_logs.*,
+            users.employee_id AS actor_employee_id
+        FROM audit_logs
+        LEFT JOIN users ON audit_logs.actor_user_id = users.id
+        ORDER BY audit_logs.created_at DESC
+        """
+    ).fetchall()
+
+    return render_template("admin/audit_logs.html", logs=logs)
