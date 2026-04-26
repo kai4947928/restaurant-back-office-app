@@ -5,6 +5,7 @@ from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash
 
+from app.audit import log_action
 from app.db import get_db
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -119,6 +120,13 @@ def employee_create():
             )
         )
 
+        log_action(
+            action="create_employee",
+            target_type="employee",
+            target_user_id=user_id,
+            description=f"{full_name}を登録"
+        )
+
         db.commit()
 
         flash(f"従業員を登録しました。社員番号: {employee_id} / 仮パスワード: {temp_password}")
@@ -164,9 +172,9 @@ def employee_edit(user_id):
             UPDATE employees
             SET
                 full_name = ?,
-                home_address = ?
+                home_address = ?,
                 employment_type = ?,
-                store_code,
+                store_code = ?,
                 department = ?,
                 position = ?,
                 phone_number = ?,
@@ -184,6 +192,13 @@ def employee_edit(user_id):
                 now,
                 user_id
             )
+        )
+
+        log_action(
+            action="edit_employee",
+            target_type="employee",
+            target_user_id=user_id,
+            description=f"{full_name}を更新"
         )
 
         db.commit()
@@ -239,7 +254,7 @@ def employee_list():
 @admin_bp.route("/employees/<int:user_id>/disable", methods=["POST"])
 def employee_disable(user_id):
     if "user_id" not in session:
-        return redirect(url_for("auth/login"))
+        return redirect(url_for("auth.login"))
 
     if session.get("role") != "admin":
         flash("権限がありません")
@@ -254,6 +269,13 @@ def employee_disable(user_id):
         WHERE id = ?
         """,
         (user_id,)
+    )
+
+    log_action(
+        action="disable_employee",
+        target_type="employee",
+        target_user_id=user_id,
+        description="従業員を無効化"
     )
 
     db.commit()
@@ -272,7 +294,7 @@ def reset_password(user_id):
 
     db = get_db()
 
-    user= db.execute(
+    user = db.execute(
         "SELECT id FROM users WHERE id = ?",
         (user_id,)
     ).fetchone()
@@ -297,6 +319,12 @@ def reset_password(user_id):
         )
     )
 
+    log_action(
+        action="reset_password",
+        target_type="user",
+        target_user_id=user_id,
+        description="パスワード再発行"
+    )
     db.commit()
 
     flash(f"仮パスワードを再発行しました: {temp_password}")
