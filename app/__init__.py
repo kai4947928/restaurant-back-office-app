@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template, session, redirect, url_for
 import os
 
 from .db import close_db, init_db, seed_user
@@ -28,6 +28,8 @@ def create_app():
 
     @app.route("/")
     def home():
-        return "App is running"
+        if "user_id" not in session:
+            return redirect(url_for("auth.login"))
 
+        return render_template("home.html")
     return app
