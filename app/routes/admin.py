@@ -10,9 +10,11 @@ from app.db import get_db
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
+#社員番号作成関数
 def generate_employee_id():
     db = get_db()
 
+    #重複しない番号ができるまで繰り返す
     while True:
         employee_id = "".join(random.choices(string.digits, k=6))
 
@@ -24,14 +26,17 @@ def generate_employee_id():
         if not exists:
             return employee_id
 
+#仮パスワード発行関数
 def generate_temp_password():
     return "".join(random.choices(string.ascii_letters + string.digits, k=10))
 
+#従業員登録処理
 @admin_bp.route("/employees/create", methods=["GET", "POST"])
 def employee_create():
     if "user_id" not in session:
         return redirect(url_for("auth.login"))
 
+    #従業員登録権限の有無を確認
     if session.get("role") != "admin":
         flash("権限がありません")
         return redirect(url_for("home"))
@@ -82,6 +87,7 @@ def employee_create():
             )
         )
 
+        #最後に追加したデータのIDを取得
         user_id = db.execute("SELECT last_insert_rowid()").fetchone()[0]
 
         db.execute(
@@ -120,6 +126,7 @@ def employee_create():
             )
         )
 
+        #ログ画面で確認できる内容
         log_action(
             action="create_employee",
             target_type="employee",
@@ -134,6 +141,7 @@ def employee_create():
 
     return render_template("admin/employee_create.html")
 
+#従業員情報更新処理
 @admin_bp.route("/employees/<int:user_id>/edit", methods=["GET", "POST"])
 def employee_edit(user_id):
     if "user_id" not in session:
@@ -222,6 +230,7 @@ def employee_edit(user_id):
 
     return render_template("admin/employee_edit.html", emp=employee)
 
+#従業員一覧表示処理
 @admin_bp.route("/employees")
 def employee_list():
     if "user_id" not in session:
@@ -238,7 +247,6 @@ def employee_list():
         SELECT
             users.id,
             users.employee_id,
-            users.email,
             users.role,
             employees.full_name,
             employees.store_code,
@@ -251,6 +259,7 @@ def employee_list():
 
     return render_template("admin/employee_list.html", employees=employees)
 
+#アカウント無効化処理
 @admin_bp.route("/employees/<int:user_id>/disable", methods=["POST"])
 def employee_disable(user_id):
     if "user_id" not in session:
@@ -283,6 +292,7 @@ def employee_disable(user_id):
     flash("従業員を無効化しました。")
     return redirect(url_for("admin.employee_list"))
 
+#仮パスワード再発行処理(管理者が再発行するもので、念の為の機能)
 @admin_bp.route("/employees/<int:user_id>/reset-password", methods=["POST"])
 def reset_password(user_id):
     if "user_id" not in session:
@@ -330,6 +340,7 @@ def reset_password(user_id):
     flash(f"仮パスワードを再発行しました: {temp_password}")
     return redirect(url_for("admin.employee_list"))
 
+#従業員情報(登録・更新・仮パスワード再発行・アカウント無効化)のログをログ確認画面にて確認する処理
 @admin_bp.route("/audit-logs")
 def audit_logs():
     if "user_id" not in session:

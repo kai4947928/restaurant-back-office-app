@@ -4,6 +4,7 @@ from datetime import datetime
 from flask import current_app, g
 from werkzeug.security import generate_password_hash
 
+#DB接続するための関数
 def get_db():
     if "db" not in g:
         g.db = sqlite3.connect(
@@ -13,18 +14,21 @@ def get_db():
 
     return g.db
 
+#リクエスト終了時にDB接続を閉じる関数
 def close_db(e=None):
     db = g.pop("db", None)
 
     if db is not None:
         db.close()
 
+#テーブルの構造を作る関数
 def init_db():
     db = get_db()
 
     with current_app.open_resource("schema.sql") as f:
         db.executescript(f.read().decode("utf8"))
 
+#初期ユーザーをDBに登録する関数
 def seed_user():
     db = get_db()
 

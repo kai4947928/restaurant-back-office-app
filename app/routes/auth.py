@@ -6,6 +6,7 @@ from app.db import get_db
 
 auth_bp = Blueprint("auth", __name__)
 
+#ログイン処理(社員番号とパスワード)
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -23,23 +24,28 @@ def login():
             (employee_id,)
         ).fetchone()
 
+        #アカウントの有無と無効化されているのか確認
         if user is None or user["is_active"] == 0:
             flash("社員番号またはパスワードが違います。")
             return redirect(url_for("auth.login"))
 
+        #パスワード設定の確認
         if user["password_hash"] is None:
             flash("パスワードが未設定です。")
             return redirect(url_for("auth.login"))
 
+        #入力パスワードとDBのパスワードハッシュが一致するか確認
         if not check_password_hash(user["password_hash"], password):
             flash("社員番号またはパスワードが違います。")
             return redirect(url_for("auth.login"))
 
+        #セッション管理
         session.clear()
         session["user_id"] = user["id"]
         session["employee_id"] = user["employee_id"]
         session["role"] = user["role"]
 
+        #初回ログイン時にパスワード再設定画面へ遷移する
         if user["must_change_password"] == 1:
             session.clear()
             session["user_id"] = user["id"]
@@ -49,8 +55,11 @@ def login():
 
     return render_template("login.html")
 
+#パスワード再設定・変更処理
 @auth_bp.route("/change-password", methods=["GET", "POST"])
 def change_password():
+
+    #ログインしてない場合、ログインしてください
     if "user_id" not in session:
         return redirect(url_for("auth.login"))
 
@@ -58,10 +67,12 @@ def change_password():
         new_password = request.form.get("new_password", "")
         confirm_password = request.form.get("confirm_password", "")
 
+        #新しいパスワードと確認用パスワードを入寮しているか確認
         if new_password == "" or confirm_password == "":
             flash("パスワードを入力してください")
             return redirect(url_for("auth.change_password"))
 
+        #新しいパスワードと確認用のパスワードが一致しているか確認
         if new_password != confirm_password:
             flash("パスワードが一致しません")
             return redirect(url_for("auth.change_password"))
@@ -90,6 +101,7 @@ def change_password():
 
     return render_template("change_password.html")
 
+#ログアウト処理
 @auth_bp.route("/logout")
 def logout():
     session.clear()
