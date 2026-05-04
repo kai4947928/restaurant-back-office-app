@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <title>ダッシュボード</title>
+    </head>
+    <body>
+        <h1>ダッシュボード</h1>
+        <p>ログイン中：{{ session.employee_id }}</p>
+        <h2>管理メニュー</h2>
+        <ul>
+            <li>
+                <a href="{{ url_for('admin.employee_list') }}">従業員一覧</a>
+            </li>
+            <li>
+                <a href="{{ url_for('admin.employee_create') }}">従業員登録</a>
+            </li>
+            <li>
+                <a href="{{ url_for('admin.audit_logs') }}">監査ログ</a>
+            </li>
+            <li>
+                <a href="{{ url_for('auth.logout') }}">ログアウト</a>
+            </li>
+        </ul>
+    </body>
+</html>
