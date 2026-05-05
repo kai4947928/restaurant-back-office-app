@@ -23,6 +23,25 @@
                 <a href="{{ url_for('admin.employee_create') }}">従業員を登録する</a>
             </p>
 
+            <form method="get">
+                <div>
+                    {{ form.keyword.label }}
+                    {{ form.keyword() }}
+                </div>
+                <div>
+                    {{ form.role.label }}
+                    {{ form.role() }}
+                </div>
+                <div>
+                    {{ form.department.label }}
+                    {{ form.department() }}
+                </div>
+
+                {{ form.submit() }}
+
+                <a href="{{ url_for('admin.employee_list') }}">クリア</a>
+            </form>
+
             <table border="1">
                 <tr>
                     <th>社員番号</th>

@@ -2,6 +2,8 @@ import random
 import string
 from datetime import datetime
 
+from app.forms import EmployeeSearchForm
+
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash
 
@@ -240,24 +242,57 @@ def employee_list():
         flash("権限がありません")
         return redirect(url_for("home"))
 
-    db = get_db()
+    #検索フォーム
+    form = EmployeeSearchForm(request.args, meta={"csrf": False})
 
-    employees = db.execute(
-        """
+    keyword = form.keyword.data or ""
+    role = form.role.data or ""
+    department = form.department.data or ""
+
+    sql = """
         SELECT
             users.id,
             users.employee_id,
+            users.email,
             users.role,
+            users.is_active,
             employees.full_name,
             employees.store_code,
             employees.department,
             employees.position
         FROM users
         JOIN employees ON users.id = employees.user_id
-        """
-    ).fetchall()
+        WHERE 1 = 1
+    """
 
-    return render_template("admin/employee_list.html", employees=employees)
+    params = []
+
+    if keyword:
+        sql += """
+            AND (
+                users.employee_id LIKE ?
+                OR users.email LIKE ?
+                OR employees.full_name LIKE ?
+                OR employees.store_code LIKE ?
+            )
+        """
+        like_keyword = f"%{keyword}%"
+        params.extend([like_keyword, like_keyword, like_keyword, like_keyword])
+
+    if role:
+        sql += " AND users.role = ?"
+        params.append(role)
+
+    if department:
+        sql += " AND employees.department = ?"
+        params.append(department)
+
+    sql += " ORDER BY users.employee_id ASC"
+
+    db = get_db()
+    employees = db.execute(sql, params).fetchall()
+
+    return render_template("admin/employee_list.html", employees=employees, form=form)
 
 #アカウント無効化処理
 @admin_bp.route("/employees/<int:user_id>/disable", methods=["POST"])
