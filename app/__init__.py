@@ -6,7 +6,10 @@ from .routes.auth import auth_bp
 from .routes.admin import admin_bp
 
 def create_app():
-    app = Flask(__name__, template_folder="../templates")
+    app = Flask(__name__,
+                template_folder="../templates",
+                static_folder="../static"
+                )
 
     app.config["DATABASE"] = os.path.join(
         app.instance_path,

@@ -2,95 +2,98 @@
 <html lang="ja">
     <head>
         <meta charset="UTF-8">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
         <title>従業員登録</title>
     </head>
     <body>
-        <h1>従業員登録</h1>
+        <div class="container">
+            <h1>従業員登録</h1>
 
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul>
-                    {% for message in messages %}
-                        <li>{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <ul>
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
 
-        <form method="post">
-            <div>
-                <label>氏名</label>
-                <input type="text" name="full_name" required>
-            </div>
-            <div>
-                <label>メールアドレス</label>
-                <input type="email" name="email" required>
-            </div>
-            <div>
-                <label>性別</label>
-                <select name="gender">
-                    <option value="">選択してください</option>
-                    <option value="man">男性</option>
-                    <option value="woman">女性</option>
-                    <option value="other">その他</option>
-                </select>
-            </div>
-            <div>
-                <label>生年月日</label>
-                <input type="date" name="birth_date" required>
-            </div>
-            <div>
-                <label>住所</label>
-                <input type="text" name="home_address">
-            </div>
-            <div>
-                <label>雇用区分</label>
-                <select name="employment_type">
-                    <option value="">選択してください</option>
-                    <option value="full_time">正社員</option>
-                    <option value="contract">契約社員</option>
-                    <option value="part_time">アルバイト・パート</option>
-                    <option value="temporary">派遣</option>
-                </select>
-            </div>
-            <div>
-                <label>入社日</label>
-                <input type="date" name="hire_date">
-            </div>
-            <div>
-                <label>店番号</label>
-                <input type="text" name="store_code">
-            </div>
-            <div>
-                <label>担当領域</label>
-                <select name="department">
-                    <option value="">選択してください</option>
-                    <option value="kitchen">キッチン</option>
-                    <option value="hall">ホール</option>
-                    <option value="all">全体</option>
-                </select>
-            </div>
-            <div>
-                <label>役職</label>
-                <select name="position">
-                    <option value="">選択してください</option>
-                    <option value="staff">一般スタッフ</option>
-                    <option value="store_manager">店長</option>
-                    <option value="assistant_manager">副店長</option>
-                    <option value="head_chef">料理長</option>
-                    <option value="sous_chef">副料理長</option>
-                </select>
-            </div>
-            <div>
-                <label>電話番号</label>
-                <input type="text" name="phone_number">
-            </div>
+            <form method="post">
+                <div>
+                    <label>氏名</label>
+                    <input type="text" name="full_name" required>
+                </div>
+                <div>
+                    <label>メールアドレス</label>
+                    <input type="email" name="email" required>
+                </div>
+                <div>
+                    <label>性別</label>
+                    <select name="gender">
+                        <option value="">選択してください</option>
+                        <option value="man">男性</option>
+                        <option value="woman">女性</option>
+                        <option value="other">その他</option>
+                    </select>
+                </div>
+                <div>
+                    <label>生年月日</label>
+                    <input type="date" name="birth_date" required>
+                </div>
+                <div>
+                    <label>住所</label>
+                    <input type="text" name="home_address">
+                </div>
+                <div>
+                    <label>雇用区分</label>
+                    <select name="employment_type">
+                        <option value="">選択してください</option>
+                        <option value="full_time">正社員</option>
+                        <option value="contract">契約社員</option>
+                        <option value="part_time">アルバイト・パート</option>
+                        <option value="temporary">派遣</option>
+                    </select>
+                </div>
+                <div>
+                    <label>入社日</label>
+                    <input type="date" name="hire_date">
+                </div>
+                <div>
+                    <label>店番号</label>
+                    <input type="text" name="store_code">
+                </div>
+                <div>
+                    <label>担当領域</label>
+                    <select name="department">
+                        <option value="">選択してください</option>
+                        <option value="kitchen">キッチン</option>
+                        <option value="hall">ホール</option>
+                        <option value="all">全体</option>
+                    </select>
+                </div>
+                <div>
+                    <label>役職</label>
+                    <select name="position">
+                        <option value="">選択してください</option>
+                        <option value="staff">一般スタッフ</option>
+                        <option value="store_manager">店長</option>
+                        <option value="assistant_manager">副店長</option>
+                        <option value="head_chef">料理長</option>
+                        <option value="sous_chef">副料理長</option>
+                    </select>
+                </div>
+                <div>
+                    <label>電話番号</label>
+                    <input type="text" name="phone_number">
+                </div>
 
-            <button type="submit">登録</button>
-        </form>
-        <p>
-            <a href="{{ url_for('home') }}">ホームへ戻る</a>
-            <a href="{{ url_for('admin.employee_list') }}">従業員一覧へ戻る</a>
-        </p>
+                <button type="submit">登録</button>
+            </form>
+            <p>
+                <a href="{{ url_for('home') }}">ホームへ戻る</a>
+                <a href="{{ url_for('admin.employee_list') }}">従業員一覧へ戻る</a>
+            </p>
+        </div>
     </body>
 </html>

@@ -3,32 +3,36 @@
     <head>
         <meta charset="UTF-8">
         <title>ログイン</title>
+
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     </head>
     <body>
-        <h1>ログイン</h1>
+        <div class="container">
+            <h1>ログイン</h1>
 
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul>
-                    {% for message in messages %}
-                        <li>{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <ul>
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
 
-        <form method="post">
-            <div>
-                <label for="employee_id">社員番号</label>
-                <input type="text" id="employee_id" name="employee_id">
-            </div>
+            <form method="post">
+                <div>
+                    <label for="employee_id">社員番号</label>
+                    <input type="text" id="employee_id" name="employee_id">
+                </div>
 
-            <div>
-                <label for="password">パスワード</label>
-                <input type="password" id="password" name="password">
-            </div>
+                <div>
+                    <label for="password">パスワード</label>
+                    <input type="password" id="password" name="password">
+                </div>
 
-            <button type="submit">ログイン</button>
-        </form>
+                <button type="submit">ログイン</button>
+            </form>
+        </div>
     </body>
 </html>
