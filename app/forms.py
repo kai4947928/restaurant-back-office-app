@@ -27,3 +27,20 @@ class EmployeeSearchForm(FlaskForm):
     )
 
     submit = SubmitField("検索")
+
+class AuditLogSearchForm(FlaskForm):
+    action = SelectField(
+        "アクション",
+        choices=[
+            ("", "すべて"),
+            ("create_employee", "登録"),
+            ("update_employee", "更新"),
+            ("disable_employee", "無効化"),
+            ("reset_password", "仮パスワード再発行"),
+        ],
+        default=""
+    )
+
+    keyword = StringField("キーワード")
+
+    submit = SubmitField("検索")

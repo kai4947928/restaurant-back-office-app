@@ -2,7 +2,7 @@ import random
 import string
 from datetime import datetime
 
-from app.forms import EmployeeSearchForm
+from app.forms import EmployeeSearchForm, AuditLogSearchForm
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash
@@ -396,15 +396,38 @@ def audit_logs():
         flash("監査ログを閲覧する権限がありません")
         return redirect(url_for("home"))
 
-    logs = db.execute(
-        """
+    form = AuditLogSearchForm(request.args, meta={"csrf": False})
+
+    action = form.action.data or ""
+    keyword = form.keyword.data or ""
+
+    sql = """
         SELECT
             audit_logs.*,
             users.employee_id AS actor_employee_id
         FROM audit_logs
         LEFT JOIN users ON audit_logs.actor_user_id = users.id
-        ORDER BY audit_logs.created_at DESC
-        """
-    ).fetchall()
+        WHERE 1 = 1
+    """
 
-    return render_template("admin/audit_logs.html", logs=logs)
+    params = []
+
+    if action:
+        sql += " AND audit_logs.action = ?"
+        params.append(action)
+
+    if keyword:
+        sql += """
+            AND (
+                users.employee_id LIKE ?
+                OR audit_logs.description LIKE ?
+            )
+        """
+        like_keyword = f"%{keyword}%"
+        params.extend([like_keyword, like_keyword])
+
+    sql += " ORDER BY audit_logs.created_at DESC"
+
+    logs = db.execute(sql, params).fetchall()
+
+    return render_template("admin/audit_logs.html", logs=logs, form=form)

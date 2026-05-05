@@ -8,6 +8,18 @@
     <body>
         <div class="container">
             <h1>監査ログ</h1>
+            <form method="get">
+                <div>
+                    {{ form.action.label }}
+                    {{ form.action() }}
+                </div>
+                <div>
+                    {{ form.keyword.label }}
+                    {{ form.keyword() }}
+                </div>
+                {{ form.submit() }}
+                <a href="{{ url_for('admin.audit_logs') }}">クリア</a>
+            </form>
 
             <table border="1">
                 <tr>
