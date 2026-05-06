@@ -1,91 +1,72 @@
-<!DOCTYPE html>
-<html lang="ja">
-    <head>
-        <meta charset="UTF-8">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-        <title>従業員一覧</title>
-    </head>
-    <body>
-        <div class="container">
-            <h1>従業員一覧</h1>
+{% extends "base.html" %}
 
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <ul>
-                        {% for message in messages %}
-                            <li>{{ message }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            {% endwith %}
+{% block title %}従業員一覧{% endblock %}
 
-            <p>
-                <a href="{{ url_for('admin.employee_create') }}">従業員を登録する</a>
-            </p>
+{% block content %}
+<h1>従業員一覧</h1>
 
-            <form method="get">
-                <div>
-                    {{ form.keyword.label }}
-                    {{ form.keyword() }}
-                </div>
-                <div>
-                    {{ form.role.label }}
-                    {{ form.role() }}
-                </div>
-                <div>
-                    {{ form.department.label }}
-                    {{ form.department() }}
-                </div>
+<p>
+    <a href="{{ url_for('admin.employee_create') }}">従業員を登録する</a>
+</p>
 
-                {{ form.submit() }}
+<form method="get">
+    <div>
+        {{ form.keyword.label }}
+        {{ form.keyword() }}
+    </div>
 
-                <a href="{{ url_for('admin.employee_list') }}">クリア</a>
+    <div>
+        {{ form.role.label }}
+        {{ form.role() }}
+    </div>
+
+    <div>
+        {{ form.department.label }}
+        {{ form.department() }}
+    </div>
+
+    {{ form.submit() }}
+
+    <a href="{{ url_for('admin.employee_list') }}">クリア</a>
+</form>
+
+<table border="1">
+    <tr>
+        <th>社員番号</th>
+        <th>店番号</th>
+        <th>氏名</th>
+        <th>権限</th>
+        <th>担当領域</th>
+        <th>役職</th>
+        <th>操作</th>
+    </tr>
+
+    {% for emp in employees %}
+    <tr>
+        <td>{{ emp.employee_id}}</td>
+        <td>{{ emp.store_code }}</td>
+        <td>{{ emp.full_name }}</td>
+        <td>{{ emp.role }}</td>
+        <td>{{ emp.department }}</td>
+        <td>{{ emp.position }}</td>
+        <td>
+            <a href="{{ url_for('admin.employee_edit', user_id=emp.id) }}">更新</a>
+
+            <form method="post"
+                    action="{{ url_for('admin.employee_disable', user_id=emp.id) }}"
+                    style="display:inline;">
+                <button type="submit" onclick="return confirm('この従業員を無効化しますか?')">
+                    無効化
+                </button>
             </form>
 
-            <table border="1">
-                <tr>
-                    <th>社員番号</th>
-                    <th>店番号</th>
-                    <th>氏名</th>
-                    <th>権限</th>
-                    <th>担当領域</th>
-                    <th>役職</th>
-                    <th>操作</th>
-                </tr>
-
-                {% for emp in employees %}
-                <tr>
-                    <td>{{ emp.employee_id}}</td>
-                    <td>{{ emp.store_code }}</td>
-                    <td>{{ emp.full_name }}</td>
-                    <td>{{ emp.role }}</td>
-                    <td>{{ emp.department }}</td>
-                    <td>{{ emp.position }}</td>
-                    <td>
-                        <a href="{{ url_for('admin.employee_edit', user_id=emp.id) }}">
-                            編集
-                        </a>
-                        <form method="post"
-                            action="{{ url_for('admin.employee_disable', user_id=emp.id) }}"
-                            style="display:inline;">
-                            <button type="submit"
-                                onclick="return confirm('この従業員を無効化しますか?')">
-                                無効化
-                            </button>
-                        </form>
-                        <form method="post" action="{{ url_for('admin.reset_password', user_id=emp.id) }}">
-                            <button type="submit" onclick="return confirm('仮パスワードを再発行しますか?')">
-                                仮パスワード再発行
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </table>
-            <p>
-                <a href="{{ url_for('home') }}">ホームへ戻る</a>
-                <a href="{{ url_for('admin.audit_logs') }}">監査ログを見る</a>
-            </p>
-        </div>
-    </body>
-</html>
+            <form method="post" action="{{ url_for('admin.reset_password', user_id=emp.id) }}">
+                    <button type="submit" onclick="return confirm('仮パスワードを再発行しますか?')">
+                        仮パスワード再発行
+                    </button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

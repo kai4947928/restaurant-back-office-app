@@ -1,29 +1,26 @@
-<!DOCTYPE html>
-<html lang="ja">
-    <head>
-        <meta charset="UTF-8">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-        <title>ダッシュボード</title>
-    </head>
-    <body>
-        <div class="container">
-            <h1>ダッシュボード</h1>
-            <p>ログイン中：{{ session.employee_id }}</p>
-            <h2>管理メニュー</h2>
-            <ul>
-                <li>
-                    <a href="{{ url_for('admin.employee_list') }}">従業員一覧</a>
-                </li>
-                <li>
-                    <a href="{{ url_for('admin.employee_create') }}">従業員登録</a>
-                </li>
-                <li>
-                    <a href="{{ url_for('admin.audit_logs') }}">監査ログ</a>
-                </li>
-                <li>
-                    <a href="{{ url_for('auth.logout') }}">ログアウト</a>
-                </li>
-            </ul>
-        </div>
-    </body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}ダッシュボード{% endblock %}
+
+{% block content %}
+<h1>ダッシュボード</h1>
+
+<p>ログイン中：{{ session.employee_id }}</p>
+
+<div class="dashboard">
+    <div class="card">
+        <h2>従業員管理</h2>
+        <p>従業員登録・編集・無効化を管理</p>
+    </div>
+
+    <div class="card">
+        <h2>監査ログ</h2>
+        <p>管理操作の履歴を確認</p>
+    </div>
+
+    <div class="card">
+        <h2>業務ツール</h2>
+        <p>Excel転記・PDF化ツールを追加予定</p>
+    </div>
+</div>
+{% endblock %}

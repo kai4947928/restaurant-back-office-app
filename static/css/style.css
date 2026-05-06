@@ -73,3 +73,13 @@ select {
     box-sizing: border-box;
 }
 
+.error-message {
+    color: #d93025;
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+.input-error {
+    border: 1px solid #d93025;
+    background-color: #fff5f5;
+}
