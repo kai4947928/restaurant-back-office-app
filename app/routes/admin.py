@@ -2,7 +2,7 @@ import random
 import string
 from datetime import datetime
 
-from app.forms import EmployeeSearchForm, AuditLogSearchForm
+from app.forms import EmployeeSearchForm, AuditLogSearchForm, EmployeeCreateForm, EmployeeEditForm
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash
@@ -43,19 +43,21 @@ def employee_create():
         flash("権限がありません")
         return redirect(url_for("home"))
 
-    if request.method == "POST":
-        full_name = request.form.get("full_name", "")
-        email = request.form.get("email", "")
-        gender = request.form.get("gender", "")
-        birth_date = request.form.get("birth_date", "")
-        home_address = request.form.get("home_address", "")
-        employment_type = request.form.get("employment_type", "")
-        hire_date = request.form.get("hire_date", "")
-        store_code = request.form.get("store_code", "")
-        department = request.form.get("department", "")
-        position = request.form.get("position", "")
-        phone_number = request.form.get("phone_number", "")
-        role = request.form.get("role", "staff")
+    form = EmployeeCreateForm()
+
+    if form.validate_on_submit():
+        full_name = form.full_name.data
+        email = form.email.data
+        gender = form.gender.data
+        birth_date = form.birth_date.data.isoformat() if form.birth_date.data else ""
+        home_address = form.home_address.data
+        employment_type = form.employment_type.data
+        hire_date = form.hire_date.data.isoformat() if form.hire_date.data else ""
+        store_code = form.store_code.data
+        department = form.department.data
+        position = form.position.data
+        phone_number = form.phone_number.data
+        role = form.role.data
 
         employee_id = generate_employee_id()
         temp_password = generate_temp_password()
@@ -141,7 +143,7 @@ def employee_create():
         flash(f"従業員を登録しました。社員番号: {employee_id} / 仮パスワード: {temp_password}")
         return redirect(url_for("admin.employee_create"))
 
-    return render_template("admin/employee_create.html")
+    return render_template("admin/employee_create.html", form=form)
 
 #従業員情報更新処理
 @admin_bp.route("/employees/<int:user_id>/edit", methods=["GET", "POST"])
@@ -155,16 +157,36 @@ def employee_edit(user_id):
 
     db = get_db()
 
-    if request.method == "POST":
-        full_name = request.form.get("full_name", "")
-        email = request.form.get("email", "")
-        home_address = request.form.get("home_address", "")
-        employment_type = request.form.get("employment_type", "")
-        store_code = request.form.get("store_code", "")
-        department = request.form.get("department", "")
-        position = request.form.get("position", "")
-        phone_number = request.form.get("phone_number", "")
-        role = request.form.get("role", "staff")
+    employee = db.execute(
+        """
+        SELECT
+            users.id,
+            users.email,
+            users.role,
+            employees.*
+        FROM users
+        JOIN employees ON users.id = employees.user_id
+        WHERE users.id = ?
+        """,
+        (user_id,)
+    ).fetchone()
+
+    if employee is None:
+        flash("従業員が存在しません")
+        return redirect(url_for("admin.employee_list"))
+
+    form = EmployeeEditForm(data=dict(employee))
+
+    if form.validate_on_submit():
+        full_name = form.full_name.data
+        email = form.email.data
+        home_address = form.home_address.data
+        employment_type = form.employment_type.data
+        store_code = form.store_code.data
+        department = form.department.data
+        position = form.position.data
+        phone_number = form.phone_number.data
+        role = form.role.data
 
         now = datetime.now().isoformat()
 
@@ -216,21 +238,7 @@ def employee_edit(user_id):
         flash("従業員情報を更新しました。")
         return redirect(url_for("admin.employee_list"))
 
-    employee = db.execute(
-        """
-        SELECT
-            users.id,
-            users.email,
-            users.role,
-            employees.*
-        FROM users
-        JOIN employees ON users.id = employees.user_id
-        WHERE users.id = ?
-        """,
-        (user_id,)
-    ).fetchone()
-
-    return render_template("admin/employee_edit.html", emp=employee)
+    return render_template("admin/employee_edit.html", form=form)
 
 #従業員一覧表示処理
 @admin_bp.route("/employees")
@@ -242,7 +250,7 @@ def employee_list():
         flash("権限がありません")
         return redirect(url_for("home"))
 
-    #検索フォーム
+    #検索フォーム(WTF化)
     form = EmployeeSearchForm(request.args, meta={"csrf": False})
 
     keyword = form.keyword.data or ""
@@ -396,6 +404,7 @@ def audit_logs():
         flash("監査ログを閲覧する権限がありません")
         return redirect(url_for("home"))
 
+    #WTF化
     form = AuditLogSearchForm(request.args, meta={"csrf": False})
 
     action = form.action.data or ""

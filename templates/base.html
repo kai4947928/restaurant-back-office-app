@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}App{% endblock %}</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <h2>BackOffice App</h2>
+                {% if session.user_id and not hide_nav %}
+                <nav>
+                    <a href="{{ url_for('home') }}">ホーム</a> |
+                    <a href="{{ url_for('admin.employee_list') }}">従業員一覧</a> |
+                    <a href="{{ url_for('admin.audit_logs') }}">監査ログ</a> |
+                    <a href="{{ url_for('auth.logout') }}">ログアウト</a>
+                </nav>
+                {% endif %}
+            </header>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <ul>
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}
+            {% endblock %}
+        </div>
+    </body>
+</html>

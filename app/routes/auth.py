@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for,  flash, session
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
-
+from app.forms import LoginForm, ChangePasswordForm
 from app.db import get_db
 
 auth_bp = Blueprint("auth", __name__)
@@ -9,9 +9,11 @@ auth_bp = Blueprint("auth", __name__)
 #ログイン処理(社員番号とパスワード)
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == "POST":
-        employee_id = request.form.get("employee_id", "")
-        password = request.form.get("password", "")
+    form = LoginForm()
+
+    if form.validate_on_submit():
+        employee_id = form.employee_id.data
+        password = form.password.data
 
         db = get_db()
 
@@ -53,7 +55,7 @@ def login():
 
         return redirect(url_for("home"))
 
-    return render_template("login.html")
+    return render_template("login.html", form=form, hide_nav=True)
 
 #パスワード再設定・変更処理
 @auth_bp.route("/change-password", methods=["GET", "POST"])
@@ -63,23 +65,13 @@ def change_password():
     if "user_id" not in session:
         return redirect(url_for("auth.login"))
 
-    if request.method == "POST":
-        new_password = request.form.get("new_password", "")
-        confirm_password = request.form.get("confirm_password", "")
+    form = ChangePasswordForm()
 
-        #新しいパスワードと確認用パスワードを入寮しているか確認
-        if new_password == "" or confirm_password == "":
-            flash("パスワードを入力してください")
-            return redirect(url_for("auth.change_password"))
-
-        #新しいパスワードと確認用のパスワードが一致しているか確認
-        if new_password != confirm_password:
-            flash("パスワードが一致しません")
-            return redirect(url_for("auth.change_password"))
+    if form.validate_on_submit():
+        new_password = form.new_password.data
+        now = datetime.now().isoformat()
 
         db = get_db()
-
-        now = datetime.now().isoformat()
 
         db.execute(
             """
@@ -99,7 +91,7 @@ def change_password():
         flash("パスワードを更新しました")
         return redirect(url_for("home"))
 
-    return render_template("change_password.html")
+    return render_template("change_password.html", form=form, hide_nav=True)
 
 #ログアウト処理
 @auth_bp.route("/logout")
